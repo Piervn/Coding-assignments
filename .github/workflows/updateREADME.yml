@@ -2,29 +2,31 @@ name: Update README on Push
 
 on:
   push:
-    paths:
-      - 'README.md'
     branches:
       - main
 
 jobs:
   update-README:
-    runs-on: windows-latest
-    
+    runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-      
-    - name: Count Folders
-      id: count_folders
-      run: |
-        $folders = (Get-ChildItem -Directory | Measure-Object).Count
-        Write-Output "##vso[task.setvariable variable=folder_count]$folders"
-      
-    - name: Update README
-      run: |
-        $folderCount = $env:folder_count
-        Set-Content -Path README.md -Value "There are $folderCount folders in this repository."
-        git add README.md
-        git commit -m "Auto-update README with folder count" || echo "No changes to commit"
-        git push
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Git
+        run: |
+          git --version
+          git config user.name "README bot"
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.12
+          architecture: x64
+
+      - name: Update README
+        run: |
+          python .github/update_README.py
+          git add README.md
+          git commit -m "Auto-update README" || echo "No changes to commit"
+          git push
