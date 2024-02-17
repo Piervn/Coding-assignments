@@ -1,0 +1,30 @@
+name: Update README on Push
+
+on:
+  push:
+    paths:
+      - 'README.md'
+    branches:
+      - main
+
+jobs:
+  update-README:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: Count Folders
+      id: count_folders
+      run: |
+        $folders = (Get-ChildItem -Directory | Measure-Object).Count
+        Write-Output "##vso[task.setvariable variable=folder_count]$folders"
+      
+    - name: Update README
+      run: |
+        $folderCount = $env:folder_count
+        Set-Content -Path README.md -Value "There are $folderCount folders in this repository."
+        git add README.md
+        git commit -m "Auto-update README with folder count" || echo "No changes to commit"
+        git push
