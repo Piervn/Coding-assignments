@@ -1,83 +1,61 @@
-let solvePuzzle (clues : int[]) =
-    let getRow i (arr: 'T[,]) = arr[i, *] |> Seq.cast<'T>
-    let getColumn j = (arr: 'T[,]) = arr[*, j] |> Seq.cast<'T>
-    let chunked = clues |> Array.chunkBySize 4
-    let rows = Array.zip (chunked[3] |> Array.rev) chunked[1]
-    let columns = Array.zip chunked[0] (chunked[2] |> Array.rev)
-    let mutable solution = Array2D.create 4 4 0
+let rec permute list: int list list =
+    match list with
+    | [] -> [[]]
+    | xs -> [ for x in xs do for ys in permute (List.filter ((<>) x) xs) -> x :: ys ]
 
-    let getVisibleSkyscrapers arr = 
-        arr |> Array.fold (fun acc e ->
-            if e > (fst acc) then
-                (e, (snd acc) + 1)
-            else
-                acc
-        ) |> (0, 0) |> snd
-
-    // First step reasoning
-    rows |> Array.mapi (fun i (left, right) -> 
-        match (left, right) with
-        | (4, _) -> 
-            for j in 0..3 do
-                solution[i, j] <- j + 1
-        | (_, 4) ->
-            for j in 0..3 do
-                solution[i, j] <- 4 - j
-        | (1, _) -> solution[i, 0] <- 4
-        | (_, 1) -> solution[i, 3] <- 4
-        | _ -> ()
-    ) |> ignore
-    columns |> Array.mapi (fun j (top, bottom) ->
-        match (top, bottom) with
-        | (4, _) -> 
-            for i in 0..3 do
-                solution[i, j] <- i + 1
-        | (_, 4) ->
-            for i in 0..3 do
-                solution[i, j] <- 4 - i
-        | (1, _) -> solution[0, j] <- 4
-        | (_, 1) -> solution[3, j] <- 4
-        | _ -> ()
-    ) |> ignore
-
-    // Validation
-    let validate current i j which =
-        let ((left, right), (top, bottom)) = (rows[i], columns[j])
-        let row = current |> getRow i
-        let column = current |> getColumn j
-        if which |> fst then
-            if left   != row    |>            getVisibleSkyscrapers then false
-            if right  != row    |> Seq.rev |> getVisibleSkyscrapers then false
-        if which |> snd then
-            if top    != column |>            getVisibleSkyscrapers then false
-            if bottom != column |> Seq.rev |> getVisibleSkyscrapers then false
-        true
-
-    // Backtracking
-    let finalSolution = solution
-    let rec solve id currentSolution =
-        if id = 16 then true
-        let i = id / 4
-        let j = id % 4
-        if solution[i, j] != 0 then 
-            solve (id + 1)
-        else
-        match j with
-        | 3 -> validate rows[i] 
-
-
-
-let test1 = [| 0; 0; 1; 2; 0; 2; 0; 0; 0; 3; 0; 0; 0; 1; 0; 0; |]
-
-printfn "%A" (solvePuzzle test1)
-    
-let test = Array2D.init 3 3 (fun i j -> i * j)
-printfn "%A" 
+let perms = permute [1; 2; 3; 4]
 
 let getVisibleSkyscrapers row = 
-    row |> Array.fold (fun acc e ->
+    row |> List.fold (fun acc e ->
         if e > (fst acc) then
             (e, (snd acc) + 1)
         else
             acc
     ) (0, 0) |> snd
+
+let permsWithClues = 
+    perms |> List.map (fun perm -> 
+        (
+            getVisibleSkyscrapers perm,
+            perm,
+            getVisibleSkyscrapers (perm |> List.rev)
+        ))
+
+let solvePuzzle (clues : int[]) =
+    let chunked = clues |> Array.chunkBySize 4
+    let rows = ((chunked[3] |> Array.rev), chunked[1]) ||> Array.zip
+    let columns = (chunked[0], (chunked[2] |> Array.rev)) ||> Array.zip
+    let rec getAllPossibleSolutions i (columns: int list list) =
+        match i with
+        | 4 -> [[]]
+        | _ -> [ 
+            for (l, perm, r) in //permsWithClues
+                permsWithClues |> List.filter (fun (l, perm, r) -> 
+                let leftClue = fst rows[i]
+                let rightClue = snd rows[i]
+                (l = leftClue || leftClue = 0) && (r = rightClue || rightClue = 0) && 
+                (not <| ((perm, columns) ||> List.mapi2 (fun key e column -> columns[key] |> List.contains e) |> List.contains true))) 
+                do
+                    let newColumns = (columns, perm) ||> List.map2 (fun column e -> e :: column)
+                    for rest in getAllPossibleSolutions (i+1) newColumns -> perm :: rest
+            ]
+    let possibleSolutions = getAllPossibleSolutions 0 (List.init 4 (fun _ -> []))
+    //possibleSolutions |> List.item 0
+    possibleSolutions |> List.filter (fun solution -> 
+        solution |> List.transpose |> List.mapi (fun i column -> 
+            let topSkyscrapers = getVisibleSkyscrapers column
+            let bottomSkyscrapers = getVisibleSkyscrapers (column |> List.rev)
+            let (topClue, bottomClue) = columns[i]
+            (topClue = 0 || topClue = topSkyscrapers) && (bottomClue = 0 || bottomClue = bottomSkyscrapers)
+        ) |> List.contains false |> not
+    ) |> List.item 0 |> List.map Array.ofList |> Array.ofList
+
+
+
+let clues1 = [| 2; 2; 1; 3; 2; 2; 3; 1; 1; 2; 2; 3; 3; 2; 1; 3; |]
+let clues2 = [| 0; 0; 1; 2; 0; 2; 0; 0; 0; 3; 0; 0; 0; 1; 0; 0; |]
+let solution1 = solvePuzzle clues1
+let solution2 = solvePuzzle clues2
+
+solution1 |> printfn "%A"
+solution2 |> printfn "%A"
