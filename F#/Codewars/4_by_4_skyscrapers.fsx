@@ -1,9 +1,9 @@
-let rec permute list: int list list =
+let rec permutations list: int list list =
     match list with
     | [] -> [[]]
-    | xs -> [ for x in xs do for ys in permute (List.filter ((<>) x) xs) -> x :: ys ]
+    | xs -> [ for x in xs do for ys in permutations (List.filter ((<>) x) xs) -> x :: ys ]
 
-let perms = permute [1; 2; 3; 4]
+let perms = permutations [1; 2; 3; 4]
 
 let getVisibleSkyscrapers row = 
     row |> List.fold (fun acc e ->
@@ -15,21 +15,21 @@ let getVisibleSkyscrapers row =
 
 let permsWithClues = 
     perms |> List.map (fun perm -> 
-        (
-            getVisibleSkyscrapers perm,
-            perm,
-            getVisibleSkyscrapers (perm |> List.rev)
-        ))
+    (
+        getVisibleSkyscrapers perm,
+        perm,
+        getVisibleSkyscrapers (perm |> List.rev)
+    ))
 
 let solvePuzzle (clues : int[]) =
     let chunked = clues |> Array.chunkBySize 4
-    let rows = ((chunked[3] |> Array.rev), chunked[1]) ||> Array.zip
-    let columns = (chunked[0], (chunked[2] |> Array.rev)) ||> Array.zip
+    let rows = Array.zip (chunked.[3] |> Array.rev) chunked.[1]
+    let columns = Array.zip chunked.[0] (chunked.[2] |> Array.rev)
     let rec getAllPossibleSolutions i (columns: int list list) =
         match i with
         | 4 -> [[]]
         | _ -> [ 
-            for (l, perm, r) in //permsWithClues
+            for (l, perm, r) in
                 permsWithClues |> List.filter (fun (l, perm, r) -> 
                 let leftClue = fst rows[i]
                 let rightClue = snd rows[i]
@@ -40,7 +40,6 @@ let solvePuzzle (clues : int[]) =
                     for rest in getAllPossibleSolutions (i+1) newColumns -> perm :: rest
             ]
     let possibleSolutions = getAllPossibleSolutions 0 (List.init 4 (fun _ -> []))
-    //possibleSolutions |> List.item 0
     possibleSolutions |> List.filter (fun solution -> 
         solution |> List.transpose |> List.mapi (fun i column -> 
             let topSkyscrapers = getVisibleSkyscrapers column
