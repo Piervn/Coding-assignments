@@ -3,17 +3,11 @@
 Here you'll find my solutions to assignments from various programming platforms.
 I solve these problems in various programming languages for diversity.
 
-| Language | Solved |
-| -------- | -----: |
-{% for lang, count in total -%}
-| `{{ lang }}` | {{ count }} |
-{% endfor -%}
-| **Total** | **{{ total|map(attribute=1)|sum }}**
-
 ### Table: Number of problems solved on different platforms in each language
 
-| X | {{ platforms }} |
-| - | {{ ' -: |' * platforms_count }}
+| X | {{ platforms }} | Total |
+| - | {{ ' -: |' * (platforms_count + 1) }}
 {% for lang in assignments.keys()|sort -%}
-| `{{ lang }}` | {{ assignments[lang]|join(' | ') }} |
-{% endfor %}
+| `{{ lang }}` | {{ assignments[lang]|join(' | ') }} | {{ total_langs[lang] }}
+{% endfor -%}
+| **Total** | {{ total_platforms|join(' | ') }} | {{ TOTAL }} |

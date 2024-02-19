@@ -26,10 +26,10 @@ for lang in folders:
         files = get_files(path)
         assignments[lang][source] = len(files)
 
-total = {}
+total_langs = {}
 for lang in assignments.keys():
-    total[lang] = sum(assignments[lang].values())
-total = sorted(total.items(), key=lambda x: x[1], reverse=True)
+    total_langs[lang] = sum(assignments[lang].values())
+total_langs = dict(sorted(total_langs.items(), key=lambda x: x[0]))
 
 platforms = set()
 for lang in assignments.keys():
@@ -38,6 +38,17 @@ for lang in assignments.keys():
         
 platforms = sorted(list(platforms))
         
+total_platforms = {}
+for platform in platforms:
+    total_platforms[platform] = 0
+    for lang in assignments.keys():
+        if platform in assignments[lang].keys():
+            total_platforms[platform] += assignments[lang][platform]
+        else:
+            total_platforms[platform] += 0
+total_platforms = sorted(total_platforms.items(), key=lambda x: x[0])
+total_platforms = map(lambda x: x[1], total_platforms)
+
 for lang in assignments.keys():
     assignments[lang] = [
         assignments[lang][source] if source in assignments[lang].keys() else '-' 
@@ -48,7 +59,9 @@ file_loader = FileSystemLoader('.github')
 env = Environment(loader = file_loader)
 template = env.get_template('template_README.md.jinja')
 data = {
-    'total': total,
+    'total_langs': total_langs,
+    'total_platforms': total_platforms,
+    'TOTAL': sum(total_langs.values()),
     'platforms': ' | '.join(platforms),
     'platforms_count': len(platforms),
     'assignments': assignments,
