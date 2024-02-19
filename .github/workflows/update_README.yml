@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  update-README:
+  Update_README:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,6 +17,7 @@ jobs:
         run: |
           git --version
           git config user.name "README bot"
+          git config user.email "readme-bot@github"
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -26,6 +27,7 @@ jobs:
 
       - name: Update README
         run: |
+          pip install -U Jinja2
           python .github/update_README.py
           git add README.md
           git commit -m "Auto-update README" || echo "No changes to commit"

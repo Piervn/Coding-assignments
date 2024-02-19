@@ -1,4 +1,5 @@
 import os
+from jinja2 import Environment, FileSystemLoader
 
 def get_folder_names(path):
     return [name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))]
@@ -9,13 +10,13 @@ def get_files(path):
 print(os.getcwd())
 main_path = os.getcwd()
 all_folders = get_folder_names(main_path)
-excluded_folders = ['.github', '.git']
+excluded_folders = ['.github', '.git', '.vscode']
 folders = list(set(all_folders) - set(excluded_folders))
 
-dict = {}
+assignments = {}
 for lang in folders:
-    dict[lang] = {}
-    sources = get_folder_names(os.path.join(main_path, lang))
+    assignments[lang] = {}
+    sources = list(set(get_folder_names(os.path.join(main_path, lang))) - set(excluded_folders))
     for source in sources:
         number_of_assignments = 0
         path = os.path.join(main_path, lang, source)
@@ -23,7 +24,30 @@ for lang in folders:
             case "Rust":
                 path = os.path.join(path, "src", "bin")
         files = get_files(path)
-        dict[lang][source] = len(files)
+        assignments[lang][source] = len(files)
 
-print(dict)
+platforms = set()
+for lang in assignments.keys():
+    for source in assignments[lang].keys():
+        platforms.add(source)
+        
+platforms = sorted(list(platforms))
+        
+for lang in assignments.keys():
+    assignments[lang] = [
+        assignments[lang][source] if source in assignments[lang].keys() else 'X' 
+        for source in platforms
+    ]
+
+file_loader = FileSystemLoader('.github')
+env = Environment(loader = file_loader)
+template = env.get_template('template_README.md.jinja')
+data = {
+    'platforms': ' | '.join(platforms),
+    'platforms_count': len(platforms),
+    'assignments': assignments,
+}
+output = template.render(data)
+with open('README.md', 'w') as f:
+    f.write(output)
     
