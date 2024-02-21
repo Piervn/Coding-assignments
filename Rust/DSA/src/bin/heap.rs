@@ -1,3 +1,5 @@
+use std::fmt;
+
 enum HeapType {
     MIN,
     MAX,
@@ -14,6 +16,15 @@ impl<T: Ord> Heap<T> {
             heap_type,
             data: vec![],
         }
+    }
+
+    pub fn from_vec(heap_type: HeapType, data: Vec<T>) -> Self {
+        let mut heap = Self::new(heap_type);
+        heap.data = data;
+        for i in (0..heap.data.len()).rev() {
+            heap.heapify_down(i);
+        }
+        heap
     }
 
     pub fn push(&mut self, value: T) {
@@ -105,6 +116,12 @@ impl<T: Ord> Heap<T> {
     }
 }
 
+impl<T: fmt::Debug> fmt::Display for Heap<T> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self.data)
+    }
+}
+
 fn main() {
     let mut heap = Heap::new(HeapType::MAX);
     heap.push(5);
@@ -115,7 +132,10 @@ fn main() {
     heap.push(2);
     heap.push(6);
     heap.push(8);
-    println!("{:?}", heap.data);
+    println!("{}", heap);
     println!("{:?}", heap.pop());
-    println!("{:?}", heap.data);
+    println!("{}", heap);
+    let data = vec![5, 3, 7, 1, 4, 2, 6, 8];
+    let heap_from_vec = Heap::from_vec(HeapType::MAX, data);
+    println!("{}", heap_from_vec);
 }
