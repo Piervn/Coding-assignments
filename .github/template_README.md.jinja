@@ -5,9 +5,9 @@ I solve these problems in various programming languages for diversity.
 
 ### Table: Number of problems solved on different platforms in each language
 
-| X | {{ platforms }} | Total |
-| - | {{ ' -: |' * (platforms_count + 1) }}
+| X | {{ columns|join(' | ') }} | Total |
+| - | {{ ' -: |' * (columns|length + 1) }}
 {% for lang in assignments.keys()|sort -%}
-| `{{ lang }}` | {{ assignments[lang]|join(' | ') }} | {{ total_langs[lang] }}
+| `{{ lang }}` | {{ assignments[lang]|join(' | ') }} | {{ total_rows[lang] }}
 {% endfor -%}
-| **Total** | {{ total_platforms|join(' | ') }} | {{ TOTAL }} |
+| **Total** | {{ total_columns|join(' | ') }} | {{ TOTAL }} |
