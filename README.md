@@ -9,6 +9,6 @@ I solve these problems in various programming languages for diversity.
 | - |  -: | -: | -: | -: |
 | `C#` | - | - | 3 | 3
 | `C++` | - | - | 1 | 1
-| `F#` | 13 | - | - | 13
+| `F#` | 14 | - | - | 14
 | `Rust` | 2 | 1 | 1 | 4
-| **Total** | 15 | 1 | 5 | 21 |
+| **Total** | 16 | 1 | 5 | 22 |
