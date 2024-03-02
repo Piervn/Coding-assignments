@@ -1,9 +1,9 @@
 # Coding assignments
 
-Here you'll find my solutions to assignments from various programming platforms.
+Here you'll find my solutions to assignments from various programming platforms or subjects.
 I solve these problems in various programming languages for diversity.
 
-### Table: Number of problems solved on different platforms in each language
+### Number of problems solved on different platforms and subjects in each language
 
 | X | Codewars | DSA | LeetCode | Total |
 | - |  -: | -: | -: | -: |
