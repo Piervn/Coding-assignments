@@ -11,5 +11,5 @@ I solve these problems in various programming languages for diversity.
 | `C++` | - | - | 1 | 1
 | `F#` | 16 | - | - | 16
 | `Rust` | 2 | 1 | 1 | 4
-| `Typescript` | 1 | - | - | 1
-| **Total** | 25 | 1 | 5 | 31 |
+| `TypeScript` | 2 | - | - | 2
+| **Total** | 26 | 1 | 5 | 32 |
