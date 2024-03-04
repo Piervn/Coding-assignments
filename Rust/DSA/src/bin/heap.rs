@@ -49,6 +49,26 @@ impl<T: Ord> Heap<T> {
         self.data.first()
     }
 
+    pub fn empty(&self) -> bool {
+        self.data.is_empty()
+    }
+
+    pub fn update(&mut self, i: usize, value: T) {
+        self.data[i] = value;
+        if i != 0 && self.compare(i, self.parent(i).unwrap()) {
+            self.heapify_up(i);
+        } else {
+            self.heapify_down(i);
+        }
+    }
+
+    pub fn find<F>(&self, fun: F) -> Option<usize>
+    where
+        F: Fn(&T) -> bool,
+    {
+        self.data.iter().position(fun)
+    }
+
     fn heapify_up(&mut self, i: usize) {
         match self.parent(i) {
             Some(parent) => {
