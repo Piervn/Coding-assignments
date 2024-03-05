@@ -9,7 +9,7 @@ I solve these problems in various programming languages for diversity.
 | - |  -: | -: | -: | -: |
 | `C#` | 6 | - | 3 | 9
 | `C++` | - | - | 1 | 1
-| `F#` | 16 | - | - | 16
+| `F#` | 17 | - | - | 17
 | `Rust` | 2 | 2 | 1 | 5
 | `TypeScript` | 2 | - | - | 2
-| **Total** | 26 | 2 | 5 | 33 |
+| **Total** | 27 | 2 | 5 | 34 |
