@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, ops::Index};
 
 pub enum HeapType {
     MIN,
@@ -8,6 +8,13 @@ pub enum HeapType {
 pub struct Heap<T> {
     heap_type: HeapType,
     data: Vec<T>,
+}
+
+impl<T> Index<usize> for Heap<T> {
+    type Output = T;
+    fn index(&self, index: usize) -> &T {
+        &self.data[index]
+    }
 }
 
 impl<T: Ord> Heap<T> {
@@ -69,7 +76,7 @@ impl<T: Ord> Heap<T> {
         self.data.iter().position(fun)
     }
 
-    fn heapify_up(&mut self, i: usize) {
+    pub fn heapify_up(&mut self, i: usize) {
         match self.parent(i) {
             Some(parent) => {
                 if !self.compare(parent, i) {
@@ -81,7 +88,7 @@ impl<T: Ord> Heap<T> {
         }
     }
 
-    fn heapify_down(&mut self, i: usize) {
+    pub fn heapify_down(&mut self, i: usize) {
         match self.children(i) {
             (Some(left), Some(right)) => {
                 let (left_valid, right_valid) = (self.compare(i, left), self.compare(i, right));
@@ -111,14 +118,14 @@ impl<T: Ord> Heap<T> {
         }
     }
 
-    fn parent(&self, i: usize) -> Option<usize> {
+    pub fn parent(&self, i: usize) -> Option<usize> {
         match i {
             0 => None,
             _ => Some((i - 1) / 2),
         }
     }
 
-    fn children(&self, i: usize) -> (Option<usize>, Option<usize>) {
+    pub fn children(&self, i: usize) -> (Option<usize>, Option<usize>) {
         let if_exists = |id| if id < self.data.len() { Some(id) } else { None };
         let left = if_exists(2 * i + 1);
         let right = if_exists(2 * i + 2);
@@ -128,61 +135,25 @@ impl<T: Ord> Heap<T> {
     /// for MIN heap -> heap(left) < heap(right)
     ///
     /// for MAX heap -> heap(left) > heap(right)
-    fn compare(&self, left: usize, right: usize) -> bool {
+    pub fn compare(&self, left: usize, right: usize) -> bool {
         match self.heap_type {
             HeapType::MIN => self.data[left] < self.data[right],
             HeapType::MAX => self.data[left] > self.data[right],
         }
     }
 
-    fn swap(&mut self, left: usize, right: usize) {
+    pub fn swap(&mut self, left: usize, right: usize) {
         self.data.swap(left, right);
+    }
+
+    pub fn truncate(&mut self, len: usize) {
+        self.data.truncate(len);
     }
 }
 
 impl<T: fmt::Debug> fmt::Display for Heap<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{:?}", self.data)
-    }
-}
-
-fn heapsort<T: Ord + Clone>(data: &mut [T]) {
-    let mut heap = Heap::from_vec(HeapType::MAX, data.to_vec());
-    for i in (0..data.len()).rev() {
-        data[i] = heap.pop().unwrap();
-    }
-}
-
-// We save here one comparision for each heapify_down
-fn heapsort_with_hole<T: Ord + Clone + fmt::Debug>(data: &mut [T]) {
-    let mut heap = Heap::from_vec(HeapType::MAX, data.to_vec());
-    for i in (0..data.len()).rev() {
-        let mut current = 0;
-        loop {
-            match heap.children(current) {
-                (Some(left), Some(right)) => {
-                    // 1 comparision!
-                    if heap.compare(left, right) {
-                        heap.swap(current, left);
-                        current = left;
-                    } else {
-                        heap.swap(current, right);
-                        current = right;
-                    }
-                }
-                (Some(left), None) => {
-                    heap.swap(current, left);
-                    current = left;
-                }
-                _ => break,
-            }
-        }
-        if current != i {
-            heap.swap(current, i);
-            heap.heapify_up(current);
-        }
-        data[i] = heap.data[i].clone();
-        heap.data.truncate(i);
     }
 }
 
@@ -239,20 +210,5 @@ mod heap_tests {
             assert!(root >= heap_from_vec.data.iter().min().unwrap());
             heap_from_vec.pop().unwrap();
         }
-    }
-
-    #[test]
-    fn heapsort_test() {
-        let mut data = vec![5, 3, 7, 1, 4, 2, 6, 8];
-        super::heapsort(&mut data);
-        assert_eq!(data, vec![1, 2, 3, 4, 5, 6, 7, 8]);
-    }
-
-    #[test]
-    fn heapsort_with_hole_test() {
-        let mut data = vec![4, 2, 6, 7, 1, 3, 5, 8];
-        super::heapsort_with_hole(&mut data);
-        //println!("{:?}", data);
-        assert_eq!(data, vec![1, 2, 3, 4, 5, 6, 7, 8]);
     }
 }
