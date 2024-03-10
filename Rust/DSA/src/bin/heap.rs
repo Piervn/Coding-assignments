@@ -60,13 +60,21 @@ impl<T: Ord> Heap<T> {
         self.data.is_empty()
     }
 
-    pub fn update(&mut self, i: usize, value: T) {
+    pub fn len(&self) -> usize {
+        self.data.len()
+    }
+
+    pub fn update(&mut self, i: usize, value: T) -> Result<(), &str> {
+        if i >= self.data.len() {
+            return Err("Invalid item position");
+        }
         self.data[i] = value;
         if i != 0 && self.compare(i, self.parent(i).unwrap()) {
             self.heapify_up(i);
         } else {
             self.heapify_down(i);
         }
+        Ok(())
     }
 
     pub fn find<F>(&self, fun: F) -> Option<usize>
@@ -132,9 +140,11 @@ impl<T: Ord> Heap<T> {
         (left, right)
     }
 
-    /// for MIN heap -> heap(left) < heap(right)
+    /// For `(child, parent)` return true if heap is invalid, otherwise false
     ///
-    /// for MAX heap -> heap(left) > heap(right)
+    /// - for MIN heap -> heap(left) < heap(right)
+    ///
+    /// - for MAX heap -> heap(left) > heap(right)
     pub fn compare(&self, left: usize, right: usize) -> bool {
         match self.heap_type {
             HeapType::MIN => self.data[left] < self.data[right],
