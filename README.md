@@ -7,9 +7,9 @@ I solve these problems in various programming languages for diversity.
 
 | X | Codewars | DSA | LeetCode | Total |
 | - |  -: | -: | -: | -: |
-| `C#` | 6 | - | 5 | 11
+| `C#` | 6 | - | 6 | 12
 | `C++` | - | - | 1 | 1
 | `F#` | 17 | - | - | 17
 | `Rust` | 2 | 2 | 1 | 5
 | `TypeScript` | 2 | - | - | 2
-| **Total** | 27 | 2 | 7 | 36 |
+| **Total** | 27 | 2 | 8 | 37 |
