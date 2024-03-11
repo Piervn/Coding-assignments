@@ -8,6 +8,7 @@ pub enum HeapType {
 pub struct Heap<T> {
     heap_type: HeapType,
     data: Vec<T>,
+    on_swap: Option<Box<dyn FnMut(usize, usize)>>,
 }
 
 impl<T> Index<usize> for Heap<T> {
@@ -22,6 +23,15 @@ impl<T: Ord> Heap<T> {
         Self {
             heap_type,
             data: vec![],
+            on_swap: None,
+        }
+    }
+
+    pub fn new_with_handler(heap_type: HeapType, swap_handler: impl FnMut(usize, usize) + 'static) -> Self {
+        Self {
+            heap_type,
+            data: vec![],
+            on_swap: Some(Box::new(swap_handler)),
         }
     }
 
@@ -44,7 +54,7 @@ impl<T: Ord> Heap<T> {
         match len {
             0 => None,
             _ => {
-                self.data.swap(0, len - 1);
+                self.swap(0, len - 1);
                 let value = self.data.pop();
                 self.heapify_down(0);
                 value
@@ -77,10 +87,7 @@ impl<T: Ord> Heap<T> {
         Ok(())
     }
 
-    pub fn find<F>(&self, fun: F) -> Option<usize>
-    where
-        F: Fn(&T) -> bool,
-    {
+    pub fn find<F>(&self, fun: F) -> Option<usize> where F: Fn(&T) -> bool {
         self.data.iter().position(fun)
     }
 
@@ -88,7 +95,7 @@ impl<T: Ord> Heap<T> {
         match self.parent(i) {
             Some(parent) => {
                 if !self.compare(parent, i) {
-                    self.data.swap(parent, i);
+                    self.swap(parent, i);
                     self.heapify_up(parent);
                 }
             }
@@ -102,23 +109,23 @@ impl<T: Ord> Heap<T> {
                 let (left_valid, right_valid) = (self.compare(i, left), self.compare(i, right));
                 if !left_valid && !right_valid {
                     if self.compare(left, right) {
-                        self.data.swap(i, left);
+                        self.swap(i, left);
                         self.heapify_down(left);
                     } else {
-                        self.data.swap(i, right);
+                        self.swap(i, right);
                         self.heapify_down(right);
                     }
                 } else if !left_valid {
-                    self.data.swap(i, left);
+                    self.swap(i, left);
                     self.heapify_down(left);
                 } else if !right_valid {
-                    self.data.swap(i, right);
+                    self.swap(i, right);
                     self.heapify_down(right);
                 }
             }
             (Some(left), None) => {
                 if !self.compare(i, left) {
-                    self.data.swap(i, left);
+                    self.swap(i, left);
                     self.heapify_down(left);
                 }
             }
@@ -154,6 +161,9 @@ impl<T: Ord> Heap<T> {
 
     pub fn swap(&mut self, left: usize, right: usize) {
         self.data.swap(left, right);
+        self.on_swap
+            .as_mut()
+            .map(|f| f(left, right));
     }
 
     pub fn truncate(&mut self, len: usize) {
