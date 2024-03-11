@@ -27,7 +27,10 @@ impl<T: Ord> Heap<T> {
         }
     }
 
-    pub fn new_with_handler(heap_type: HeapType, swap_handler: impl FnMut(usize, usize) + 'static) -> Self {
+    pub fn new_with_handler(
+        heap_type: HeapType,
+        swap_handler: impl FnMut(usize, usize) + 'static,
+    ) -> Self {
         Self {
             heap_type,
             data: vec![],
@@ -79,7 +82,7 @@ impl<T: Ord> Heap<T> {
             return Err("Invalid item position");
         }
         self.data[i] = value;
-        if i != 0 && self.compare(i, self.parent(i).unwrap()) {
+        if i != 0 && !self.compare(self.parent(i).unwrap(), i) {
             self.heapify_up(i);
         } else {
             self.heapify_down(i);
@@ -87,7 +90,10 @@ impl<T: Ord> Heap<T> {
         Ok(())
     }
 
-    pub fn find<F>(&self, fun: F) -> Option<usize> where F: Fn(&T) -> bool {
+    pub fn find<F>(&self, fun: F) -> Option<usize>
+    where
+        F: Fn(&T) -> bool,
+    {
         self.data.iter().position(fun)
     }
 
@@ -107,21 +113,10 @@ impl<T: Ord> Heap<T> {
         match self.children(i) {
             (Some(left), Some(right)) => {
                 let (left_valid, right_valid) = (self.compare(i, left), self.compare(i, right));
-                if !left_valid && !right_valid {
-                    if self.compare(left, right) {
-                        self.swap(i, left);
-                        self.heapify_down(left);
-                    } else {
-                        self.swap(i, right);
-                        self.heapify_down(right);
-                    }
-                } else if !left_valid {
-                    self.swap(i, left);
-                    self.heapify_down(left);
-                } else if !right_valid {
-                    self.swap(i, right);
-                    self.heapify_down(right);
-                }
+                if left_valid && right_valid { return; }
+                let child_to_swap = if self.compare(left, right) { left } else { right };
+                self.swap(i, child_to_swap);
+                self.heapify_down(child_to_swap);
             }
             (Some(left), None) => {
                 if !self.compare(i, left) {
@@ -147,23 +142,21 @@ impl<T: Ord> Heap<T> {
         (left, right)
     }
 
-    /// For `(child, parent)` return true if heap is invalid, otherwise false
+    /// For `(parent, child)` return true if heap is valid, otherwise false
     ///
-    /// - for MIN heap -> heap(left) < heap(right)
+    /// - for MIN heap -> `heap(left) <= heap(right)`
     ///
-    /// - for MAX heap -> heap(left) > heap(right)
+    /// - for MAX heap -> `heap(left) >= heap(right)`
     pub fn compare(&self, left: usize, right: usize) -> bool {
         match self.heap_type {
-            HeapType::MIN => self.data[left] < self.data[right],
-            HeapType::MAX => self.data[left] > self.data[right],
+            HeapType::MIN => self.data[left] <= self.data[right],
+            HeapType::MAX => self.data[left] >= self.data[right],
         }
     }
 
     pub fn swap(&mut self, left: usize, right: usize) {
         self.data.swap(left, right);
-        self.on_swap
-            .as_mut()
-            .map(|f| f(left, right));
+        self.on_swap.as_mut().map(|f| f(left, right));
     }
 
     pub fn truncate(&mut self, len: usize) {
