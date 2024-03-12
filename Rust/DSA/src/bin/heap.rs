@@ -154,9 +154,9 @@ impl<T: Ord> Heap<T> {
         }
     }
 
-    pub fn swap(&mut self, left: usize, right: usize) {
-        self.data.swap(left, right);
-        self.on_swap.as_mut().map(|f| f(left, right));
+    pub fn swap(&mut self, a: usize, b: usize) {
+        self.data.swap(a, b);
+        self.on_swap.as_mut().map(|f| f(a, b));
     }
 
     pub fn truncate(&mut self, len: usize) {
