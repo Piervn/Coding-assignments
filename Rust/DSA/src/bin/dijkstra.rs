@@ -9,6 +9,7 @@ Assumptions:
 mod heap;
 use heap::{Heap, HeapType};
 
+// handle on swap to boost complexity
 fn dijkstra(graph: &Vec<Vec<(u32, u32)>>, source: u32) -> Vec<u32> {
     if source >= graph.len() as u32 {
         panic!("Invalid source")
