@@ -1,5 +1,7 @@
 ///
 /// Optimal order of matrix multiplication
+/// - time complexity: O(n^3)
+/// - assumption: multiplication of 2 matrices a x b and b x c costs a * b * c
 /// 
 /// Optimal cost:
 ///     Input:
@@ -12,26 +14,27 @@
 ///         - Mn: d_{n-1} x d_n
 ///
 
-fn calculate_cost(dimensions: Vec<u32>) -> u32 {
-    let dp_size = dimensions.len() - 1;
+fn calculate_cost(dims: Vec<u32>) -> u32 {
+    let dp_size = dims.len() - 1;
     let mut dp = vec![vec![0; dp_size]; dp_size];
 
-    for d in 0..dp_size {
-        dp[d][d] = 0;
+    for diag in 0..dp_size {
+        for i in 0..(dp_size - diag) {
+            let j = i + diag;
+            let cost = {i..j}.map(
+                |k| 
+                dp[i][k] + dp[k + 1][j] + 
+                dims[i] * dims[k + 1] * dims[j + 1]
+            ).min().unwrap_or(0);
+            dp[i][j] = cost;
+        }
     }
 
-    for d in 1..dp_size {
-        
-    }
-    return 0;
+    dp[0][dp_size - 1]
 }
 
 fn main() {
-    let dimensions = vec![1, 2, 3, 4, 5];
+    let dimensions = vec![2, 3, 8, 1, 4];
     println!("{}", calculate_cost(dimensions));
 }
-    
-    
-    
-    
     
