@@ -1,11 +1,8 @@
 // Definition for singly-linked list.
-public class ListNode {
-    public int val;
-    public ListNode next;
-    public ListNode(int x) {
-        val = x;
-        next = null;
-    }
+public class ListNode(int x)
+{
+    public int val = x;
+    public ListNode next = null;
 }
 
 public class Solution
