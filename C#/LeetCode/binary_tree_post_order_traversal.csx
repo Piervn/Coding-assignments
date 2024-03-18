@@ -21,8 +21,8 @@ public class Solution
         while (stack.Count > 0) {
             var node = stack.Pop();
             order.Add(node.val);
-            if (node.right != null) stack.Push(node.right);
             if (node.left != null) stack.Push(node.left);
+            if (node.right != null) stack.Push(node.right);
         }
         order.Reverse();
         return order;
