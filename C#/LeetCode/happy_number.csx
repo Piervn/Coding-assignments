@@ -1,7 +1,7 @@
 public class Solution
 {
     public bool IsHappy(int n) {
-        HashSet<int> set = new HashSet<int>();
+        HashSet<int> set = [];
         while (true) {
             int sum = 0;
             while (n > 0) {
