@@ -18,4 +18,12 @@ public class Solution {
         }
         return prev;
     }
+
+    public ListNode ReverseList2(ListNode head) {
+        if (head == null || head.next == null) return head;
+        var newHead = ReverseList(head.next);
+        head.next.next = head;
+        head.next = null;
+        return newHead;
+    }
 }
