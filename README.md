@@ -10,6 +10,6 @@ I solve these problems in various programming languages for diversity.
 | `C#` | 6 | - | 19 | 25
 | `C++` | - | - | 1 | 1
 | `F#` | 17 | - | - | 17
-| `Rust` | 2 | 6 | 1 | 9
+| `Rust` | 2 | 7 | 1 | 10
 | `TypeScript` | 2 | - | - | 2
-| **Total** | 27 | 6 | 21 | 54 |
+| **Total** | 27 | 7 | 21 | 55 |
