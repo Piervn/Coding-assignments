@@ -22,7 +22,8 @@ public class Solution
     public uint GetHeightOfCompleteTree(TreeNode root) {
         return (root == null ? 0 : 1 + GetHeightOfCompleteTree(root.left));
     }
-    
+
+    // Complexity: O((log n)^2)
     public int CountNodes(TreeNode root) {
         if (root == null) return 0;
         if (root.left == null) return 1;
