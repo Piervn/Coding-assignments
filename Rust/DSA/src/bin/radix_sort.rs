@@ -16,7 +16,7 @@ fn letter2num(c: char) -> usize {
 fn radix_sort_same_length(strings: &mut Vec<&str>) {
     if strings.is_empty() { return };
 
-    let length = strings[0].len().clone();
+    let length = strings[0].len();
     for string in strings.iter() {
         if string.len() != length { panic!("All strings must have the same length"); } 
     }
@@ -43,7 +43,11 @@ fn radix_sort_same_length(strings: &mut Vec<&str>) {
 }
 
 fn radix_sort(strings: &mut Vec<&str>) {
-    let mut not_empty_buckets: Vec<Vec<usize>> = vec![vec![]; 26];
+    let max_length = strings
+        .iter()
+        .map(|string| string.len())
+        .max()
+        .unwrap();
     let mut letter_positions: Vec<(usize, char)> =
         strings
             .iter()
@@ -64,27 +68,51 @@ fn radix_sort(strings: &mut Vec<&str>) {
         }
         bucket.clear();
     }
-    let mut position_buckets: Vec<Vec<usize>> = vec![vec![]; 26];
+    let mut position_buckets: Vec<Vec<(usize, char)>> = vec![vec![]; max_length];
     for letter_pos in letter_positions.iter() {
-        let id = letter2num(letter_pos.1);
-        position_buckets[id].push(letter_pos.0);
+        let id = letter_pos.0;
+        position_buckets[id].push(*letter_pos);
     }
     let mut index = 0;
     for bucket in position_buckets.iter_mut() {
         for letter_pos in bucket.iter() {
-            not_empty_buckets[*letter_pos].push(index);
+            letter_positions[index] = *letter_pos;
             index += 1;
         }
         bucket.clear();
     }
+    
+    // create not empty buckets based on letter positions
+    let mut not_empty_buckets: Vec<Vec<usize>> = vec![vec![]; max_length];
+    for &(letter_pos, letter) in letter_positions.iter() {
+        let letter_id = letter2num(letter);
+        not_empty_buckets[letter_pos].push(letter_id);
+    }
+
+    let mut strings_with_len: Vec<Vec<&str>> = vec![vec![]; max_length];
+    strings.iter().for_each(|&s| strings_with_len[s.len()].push(s));
+
+    let mut buckets: Vec<Vec<&str>> = vec![vec![]; 26];
+
+    let mut result: Vec<&str> = vec![];
+    for i in (0..max_length).rev() {
+        result.splice(0..0, strings_with_len[i].iter().copied());
+        for string in result.iter() {
+            let id = letter2num(string.chars().nth(i).unwrap());
+            buckets[id].push(string);
+        }
+        // WIP
+    }
+
+    println!("{:?}", not_empty_buckets);
 
 }
 
 fn main() {
     let mut strings = vec!["xyzw", "zone", "bbba", "abcd", "bbbb", "gfre", "acdf", "qwer", "bgfd", "zsdw"];
     radix_sort_same_length(&mut strings);
-    println!("{:?}", strings);
+    // println!("{:?}", strings);
 
-    let mut strings = vec!["xyzw", "zone", "bbba", "abcd", "bbbb", "gfre", "acdf", "qwer", "bgfd", "zsdw"];
+    let mut strings = vec!["abcdefg", "vx", "ukj", "a", "qwertyuiop"];
     radix_sort(&mut strings);
 }
