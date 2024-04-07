@@ -1,11 +1,17 @@
 /// 
 /// Radix sort
 /// lexicographical sorting for strings consisted of letters from latin alphabet
-///
-/// There are 2 versions of algorithm:
+/// - k - number of allowed characters (in this case 26)
+/// - n - number of strings
+/// 
+/// There are 2 versions of the algorithm:
 /// - sorting strings with same length
-/// - sorting strings with different length TODO
-///
+///     - d - length of these strings
+///     - time complexity: O((n + k) * d)
+/// - sorting strings with different length
+///     - l_total - total length of all strings (total number of characters)
+///     - time complexity: O(l_total + k)
+/// 
 
 fn letter2num(c: char) -> usize {
     let num = c as usize - 'a' as usize;
@@ -54,7 +60,7 @@ fn radix_sort(strings: &mut Vec<&str>) {
             .flat_map(|string| string.chars().enumerate())
             .collect();
 
-    // sorting letter posotions vector
+    // sorting letter positions vector
     let mut letter_buckets: Vec<Vec<(usize, char)>> = vec![vec![]; 26]; 
     for letter_pos in letter_positions.iter() {
         let id = letter2num(letter_pos.1);
@@ -89,11 +95,13 @@ fn radix_sort(strings: &mut Vec<&str>) {
         not_empty_buckets[letter_pos].push(letter_id);
     }
 
+    // vector containing strings of length i under index i
     let mut strings_with_len: Vec<Vec<&str>> = vec![vec![]; max_length];
-    strings.iter().for_each(|&s| strings_with_len[s.len()].push(s));
+    strings.iter().for_each(|&s| strings_with_len[s.len() - 1].push(s));
 
     let mut buckets: Vec<Vec<&str>> = vec![vec![]; 26];
 
+    // sorting with buckets
     let mut result: Vec<&str> = vec![];
     for i in (0..max_length).rev() {
         result.splice(0..0, strings_with_len[i].iter().copied());
@@ -101,18 +109,26 @@ fn radix_sort(strings: &mut Vec<&str>) {
             let id = letter2num(string.chars().nth(i).unwrap());
             buckets[id].push(string);
         }
-        // WIP
+        
+        let mut index = 0;
+        for bucket in buckets.iter_mut() {
+            for string in bucket.iter() {
+                result[index] = string;
+                index += 1;
+            }
+            bucket.clear();
+        }
     }
 
-    println!("{:?}", not_empty_buckets);
-
+    *strings = result;
 }
 
 fn main() {
     let mut strings = vec!["xyzw", "zone", "bbba", "abcd", "bbbb", "gfre", "acdf", "qwer", "bgfd", "zsdw"];
     radix_sort_same_length(&mut strings);
-    // println!("{:?}", strings);
+    println!("radix sort same length: {:?}", strings);
 
-    let mut strings = vec!["abcdefg", "vx", "ukj", "a", "qwertyuiop"];
+    let mut strings = vec!["abcdefg", "vx", "ukj", "a", "qwertyuiop", "uka"];
     radix_sort(&mut strings);
+    println!("radix sort: {:?}", strings);
 }
