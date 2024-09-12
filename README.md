@@ -5,11 +5,11 @@ I solve these problems in various programming languages for diversity.
 
 ### Number of problems solved on different platforms and subjects in each language
 
-| X | Codewars | DSA | LeetCode | Total |
-| - |  -: | -: | -: | -: |
-| `C#` | 6 | - | 26 | 32
-| `C++` | - | - | 1 | 1
-| `F#` | 17 | - | - | 17
-| `Rust` | 2 | 8 | 1 | 11
-| `TypeScript` | 2 | - | - | 2
-| **Total** | 27 | 8 | 28 | 63 |
+| X | Codeforces | Codewars | DSA | LeetCode | Total |
+| - |  -: | -: | -: | -: | -: |
+| `C#` | - | 6 | - | 26 | 32
+| `C++` | - | - | - | 1 | 1
+| `F#` | - | 17 | - | - | 17
+| `Rust` | 1 | 2 | 8 | 1 | 12
+| `TypeScript` | - | 2 | - | - | 2
+| **Total** | 1 | 27 | 8 | 28 | 64 |
